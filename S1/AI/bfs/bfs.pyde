@@ -5,7 +5,7 @@ obst=        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
               [1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,1],
               [1,0,0,0,1,0,0,1,1,0,0,0,0,0,0,1],
               [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-              [1,0,0,3,0,0,0,0,0,0,0,0,1,0,0,1],
+              [1,0,0,0,3,0,0,0,0,0,0,0,1,0,0,1],
               [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
               [1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1],
               [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
@@ -14,6 +14,7 @@ obst=        [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
               [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
               [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
               [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+#gloabl variables
 ouvert = []
 ferme = []
 terain = [i for i in obst] 
@@ -23,7 +24,9 @@ r = 0
 w = 0
 source = None
 goal = None
+finale = False
 
+# our node struct
 class node:
     def __init__(self,parent, x, y, terrain=obst):
         self.value = terain[x][y]
@@ -41,9 +44,11 @@ class node:
             self.childs.append(node(self,self.x-1,self.y)) #Haut
         if obst[self.x][self.y-1]!=1:
             self.childs.append(node(self,self.x,self.y-1)) #Gauche
-finale = False
+
 def setup():
+    #setting the siize of the window
     size(500, 500)
+    #getting the global variable in the function 
     global w
     global h 
     w = width / rows;
@@ -52,6 +57,7 @@ def setup():
     global ouvert
     global ferme
     global goal
+    #init the source and goal nodes based on the terain we set up
     for i in range(rows):
         for j in range(cols):
             if obst[i][j] == 2 :
@@ -59,7 +65,7 @@ def setup():
             if obst[i][j] == 3:
                  goal = node(0,i,j)
    
-      #Gestion du noeud source
+    #Gestion du noeud source
     if source.value==3 :
         finale = True
     else:
@@ -72,15 +78,18 @@ def setup():
 
 
 def draw():
+    #setting the background the white
     background(255)
     global finale
     global source 
     global ouvert
     global ferme
-    fill(204, 102, 0)
+    #showing the goal and the source points
+    fill(0, 128, 0)
     noStroke()
     ellipse(source.y * h + h / 2, source.x * w + w / 2, h / 2, w / 2)
     ellipse(goal.y * h + h / 2, goal.x * w + w / 2, h / 2, w / 2)
+    
     #Gestion des fils 
     if(not finale and ouvert!=[]):
         etat_courant = ouvert.pop(0)
@@ -90,17 +99,18 @@ def draw():
             etat_courant.succ()
             if etat_courant.childs != []:
                 for i in etat_courant.childs:
-                    if i not in ferme:
+                    if i not in ferme and i not in ouvert:
                         ouvert.append(i)
             if etat_courant not in ferme:
                 ferme.append(etat_courant)
+    #showing the obstacles            
     for i in range(cols):
         for j in range(rows):
             if terain[i][j] == 1 :
                 fill(255,0,0)
                 noStroke()
                 ellipse(j * h + h / 2, i * w + w / 2, h / 2, w / 2)
-                
+    #showing the visited points            
     for i in ferme:
         fill(170)
         noStroke()
